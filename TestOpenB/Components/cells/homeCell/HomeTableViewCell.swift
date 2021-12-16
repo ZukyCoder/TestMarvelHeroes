@@ -7,7 +7,32 @@
 
 import UIKit
 
+struct CellModel {
+    
+    let id: Int
+    let name: String
+    let description: String
+    let detailLink: String
+    let wikiLink: String
+    let comicLink: String
+    let thumbnailPath: String
+    
+    init(details: Results) {
+        self.id = details.id ?? 0
+        self.name = details.name ?? ""
+        self.description = details.resultDescription ?? ""
+        self.detailLink = "Detail"
+        self.wikiLink = "Wiki"
+        self.comicLink = "Comic Link"
+        self.thumbnailPath = details.thumbnail?.path ?? ""
+        
+    }
+    
+}
+
 class HomeTableViewCell: UITableViewCell {
+    
+    static let identifier = "HomeTableViewCell"
     
     private lazy var cellImage: UIImageView = {
         let imageView = UIImageView()
@@ -51,7 +76,6 @@ class HomeTableViewCell: UITableViewCell {
     
     private lazy var wikiLink: UILabel = {
         let wikiString = UILabel()
-        wikiString.text = "Wiki"
         wikiString.font = UIFont.systemFont(ofSize: 14)
         wikiString.textColor = UIColor.blue
         wikiString.isUserInteractionEnabled = true
@@ -60,7 +84,6 @@ class HomeTableViewCell: UITableViewCell {
     
     private lazy var comicLink: UILabel = {
         let comicString = UILabel()
-        comicString.text = "Comic Link"
         comicString.font = UIFont.systemFont(ofSize: 14)
         comicString.textColor = UIColor.blue
         comicString.isUserInteractionEnabled = true
@@ -139,7 +162,7 @@ class HomeTableViewCell: UITableViewCell {
         print("WEB LINK")
     }
     
-    func configure(data: MarvelListViewModel) {
+    func configure(data: CellModel) {
     
         let cellData = data
         self.cellImage.image =  UIImage(systemName: "person.badge.clock")
@@ -149,8 +172,7 @@ class HomeTableViewCell: UITableViewCell {
         self.wikiLink.text = data.wikiLink
         self.comicLink.text = data.comicLink
         let path = cellData.thumbnailPath
-        let ext = cellData.thumbnailExt
-        let thumUrl = path+ImagesStyles.standard_amazing.rawValue+ext
+        let thumUrl = path+ImagesStyles.standard_amazing.rawValue+ImagesStyles.jpg.rawValue
         cellImage.loadImageUsingUrlString(urlString: thumUrl)
         
         self.layoutIfNeeded()

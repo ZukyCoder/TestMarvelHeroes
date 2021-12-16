@@ -7,29 +7,54 @@
 
 import Foundation
 
-struct MarvelListViewModel {
+class MarvelListViewModel: NSObject {
     
-    let id: Int
-    let name: String
-    let description: String
-    let detailLink: String
-    let wikiLink: String
-    let comicLink: String
-    let thumbnailPath: String
-    let thumbnailExt: String
+    private var service : Service!
+    private var offset = 0
+    var limit = 30
     
-    
-    init(details: Results) {
-        
-        self.id = details.id ?? 0
-        self.name = details.name ?? ""
-        self.description = details.resultDescription ?? ""
-        self.detailLink = "Detail"
-        self.wikiLink = "Wiki"
-        self.comicLink = "Comic Link"
-        self.thumbnailPath = details.thumbnail?.path ?? ""
-        self.thumbnailExt = ".\(details.thumbnail?.thumbnailExtension ?? "jpg")"
+    private(set) var characterListArray : [Results]? {
+        didSet {
+            self.bindMarvelDetailViewModelToController()
+        }
     }
+    
+    var bindMarvelDetailViewModelToController: (() -> ()) = {}
+    
+    override init() {
+        super.init()
+        self.service = Service()
+    }
+    
+    func getData(dataOffset: Int ) {
+        offset += dataOffset
+        service.getCharactersList(offsetList: offset, limitList: limit) { (res) in
+            switch res {
+            case .success(let characters):
+                if self.characterListArray != nil {
+                    self.characterListArray! += characters
+                }else {
+                    self.characterListArray = characters
+                }
+                
+
+            case .failure(let err):
+                print(err)
+            }
+        }
+    }
+    
+    func getArrayCount() -> Int {
+        let count = characterListArray?.count ?? 0
+        return count
+    }
+    
+    func getHeroId(index: IndexPath) -> Int {
+        let id = characterListArray?[index.row].id ?? 0
+        return id
+    }
+    
+    
     
 }
 

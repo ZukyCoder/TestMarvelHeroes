@@ -9,64 +9,55 @@ import UIKit
 
 class MarvelListController: UITableViewController {
     
-    
-    var cellID = "HomeTableViewCell"
-    
-    let serviceProxy = Service.share
-    
-    var offset = 0
-    var limit = 30
+    private var marvelListViewModel : MarvelListViewModel!
     
     private let distanceFromBottom = 10.0
-    
-    var listArr:[MarvelListViewModel]? = [] {
-        didSet{
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        callViewModelUpdate()
+        
         setupNavBar()
         setupTableView()
-        getData(dataOffset: offset )
         
     }
     
-    func getData(dataOffset: Int ) {
-        serviceProxy.getCharactersList(offsetList: dataOffset, limitList: limit) { (res) in
-            switch res {
-            case .success(let characters):
-                self.setDataList(details: characters)
-
-            case .failure(let err):
-                print(err)
-            }
+    func callViewModelUpdate() {
+        self.marvelListViewModel = MarvelListViewModel()
+        self.marvelListViewModel.getData(dataOffset: 0)
+        self.marvelListViewModel.bindMarvelDetailViewModelToController = {
+            self.callUpdateData()
         }
+    }
+    
+    func callUpdateData() {
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+            print("DATA LOADED")
+        }
+        
     }
 
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return listArr?.count ?? 0
+        let count = marvelListViewModel.getArrayCount()
+        print(count)
+        return count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: cellID) as? HomeTableViewCell else { return UITableViewCell() }
-       
-        if let hero = listArr?[indexPath.row] {
-            cell.configure(data: hero)
-        }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: HomeTableViewCell.identifier ) as? HomeTableViewCell else { return UITableViewCell() }
+        if let cellData = marvelListViewModel.characterListArray?[indexPath.row] {
+            cell.configure(data: CellModel(details: cellData ))}
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let heroId = listArr?[indexPath.row].id  {
+        let heroId = marvelListViewModel.getHeroId(index: indexPath)
         goNextView(id: heroId)
-        }
+        
     }
     
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -75,8 +66,8 @@ class MarvelListController: UITableViewController {
       let maximumOffset = scrollView.contentSize.height - scrollView.frame.size.height
 
       if maximumOffset - currentOffset <= distanceFromBottom {
-        offset += limit
-          getData(dataOffset: offset)
+          let offset = marvelListViewModel.limit
+          self.marvelListViewModel.getData(dataOffset: offset)
       }
     }
     
@@ -88,17 +79,8 @@ class MarvelListController: UITableViewController {
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
-    func setDataList(details: [Results]) {
-        let infoDetails = details.map({return MarvelListViewModel(details: $0)})
-        if self.listArr == nil {
-            listArr = infoDetails
-        } else {
-            listArr!  += infoDetails
-        }
-    }
-    
     func setupTableView(){
-        tableView.register(HomeTableViewCell.self , forCellReuseIdentifier: cellID)
+        tableView.register(HomeTableViewCell.self , forCellReuseIdentifier: HomeTableViewCell.identifier)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 50
     }

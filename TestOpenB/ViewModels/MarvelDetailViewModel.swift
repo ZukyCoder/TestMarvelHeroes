@@ -24,7 +24,6 @@ class MarvelDetailViewModel: NSObject {
         super.init()
         
         self.service = Service()
-
     }
     
     func showCharacterDetaiil(id:  Int) {
@@ -32,7 +31,6 @@ class MarvelDetailViewModel: NSObject {
             switch res {
             case .success(let characters):
                 self.self.characterArray = characters
-                print(characters)
             case .failure(let err):
                 print(err)
             }
@@ -47,7 +45,6 @@ class MarvelDetailViewModel: NSObject {
         let urlString = path+style+ext
         return urlString
     }
-    
     
     //MARK: - Titles
     func getName() -> String {
