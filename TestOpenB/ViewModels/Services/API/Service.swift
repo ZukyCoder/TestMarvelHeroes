@@ -16,7 +16,7 @@ class Service: NSObject {
     static let apiKey = "6e30f0d668ed863355c41dc2c8269bcb"
     static let privateKey = "9a967ebc865d3881f08ce5b062ff1230b34d3296"
     
-    func MD5(data: String) -> String{
+    private func MD5(data: String) -> String{
         
         let hash = Insecure.MD5.hash(data: data.data(using: .utf8) ?? Data())
         
@@ -24,6 +24,35 @@ class Service: NSObject {
             String(format: "%02hhx", $0)
         }
         .joined()
+    }
+    
+    private func generalDataTask(request: URLRequest,completion: @escaping (Result<[Results], Error>) -> ()) {
+        URLSession.shared.dataTask(with: request) { (data, resp, err) in
+            if let err = err {
+                completion(.failure(err))
+                return
+            }
+        
+            guard let APIData = data else {
+                print("no data found")
+                return
+            }
+            
+            do {
+                let entity = try JSONDecoder().decode(CharactersList.self, from: APIData)
+                guard let statusCode = entity.code, (200..<300) ~= statusCode else {
+                    completion(.failure(APIError.statusCodeError))
+                  return
+                }
+                let characters = entity.data?.results ?? []
+                
+                completion(.success(characters))
+                
+            }catch let jsonErr {
+                completion(.failure(jsonErr))
+            }
+            
+        }.resume()
     }
     
     
@@ -41,28 +70,15 @@ class Service: NSObject {
         
         let request = URLRequest(url: url.url! )
         
-        URLSession.shared.dataTask(with: request) { (data, resp, err) in
-            if let err = err {
-                completion(.failure(err))
+        generalDataTask(request: request) { (res) in
+            switch res {
+                
+            case .success(let characterList):
+                completion(.success(characterList))
+            case .failure(_):
                 return
             }
-        
-            guard let APIData = data else {
-                print("no data found")
-                return
-            }
-            
-            do {
-                let entity = try JSONDecoder().decode(CharactersList.self, from: APIData)
-                let characters = entity.data?.results ?? []
-                
-                completion(.success(characters))
-                
-            }catch let jsonErr {
-                completion(.failure(jsonErr))
-            }
-            
-        }.resume()
+        }
     }
     
     func getCharactersDetails(id: Int, completion: @escaping (Result<[Results], Error>) -> ()) {
@@ -78,33 +94,17 @@ class Service: NSObject {
         }
         
         let request = URLRequest(url: url.url! )
-        
-        URLSession.shared.dataTask(with: request) { (data, resp, err) in
-            if let err = err {
-                completion(.failure(err))
+        generalDataTask(request: request) { (res) in
+            switch res {
+                
+            case .success(let characterList):
+                completion(.success(characterList))
+            case .failure(_):
                 return
             }
+        }
         
-            guard let APIData = data else {
-                print("no data found")
-                return
-            }
-            
-            do {
-                let entity = try JSONDecoder().decode(CharactersList.self, from: APIData)
-                
-                let characters = entity.data?.results ?? []
-                completion(.success(characters))
-                
-            }catch let jsonErr {
-                completion(.failure(jsonErr))
-            }
-            
-        }.resume()
     }
     
-//    private func EvaluateStatusCode(httpStatusCode: Int, responceData: Data?, url: String? = nil) -> ApiError? {
-//        
-//    }
     
 }
