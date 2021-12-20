@@ -34,7 +34,6 @@ class MarvelListController: UITableViewController {
     func callUpdateData() {
         DispatchQueue.main.async {
             self.tableView.reloadData()
-            print("DATA LOADED")
         }
         
     }
@@ -73,10 +72,7 @@ class MarvelListController: UITableViewController {
     
      
     func goNextView(id: Int) {
-        let vc = MarvelDetailController()
-        vc.modalPresentationStyle = .fullScreen
-        vc.id = id
-        self.navigationController?.pushViewController(vc, animated: true)
+        marvelListViewModel.showNextView(navigator: self.navigationController ?? UINavigationController(), id: id)
     }
     
     func setupTableView(){

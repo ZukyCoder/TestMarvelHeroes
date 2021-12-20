@@ -83,13 +83,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		00128855276B7FD600B41C3A /* Entities */ = {
+		00128855276B7FD600B41C3A /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				00128856276B800300B41C3A /* CharacterDetails.swift */,
 				00128857276B800300B41C3A /* CharactersList.swift */,
 			);
-			path = Entities;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		0012885A276B801C00B41C3A /* API */ = {
@@ -113,7 +113,6 @@
 			isa = PBXGroup;
 			children = (
 				0012885A276B801C00B41C3A /* API */,
-				00128855276B7FD600B41C3A /* Entities */,
 			);
 			name = Services;
 			path = ViewModels/Services;
@@ -142,6 +141,7 @@
 			children = (
 				0012885F276C770600B41C3A /* Mocks */,
 				007CE7EF275E9B910083043E /* Images */,
+				00128855276B7FD600B41C3A /* Models */,
 				007678B6276B7A0E00C1567C /* Services */,
 				007CE7E2275C160C0083043E /* Components */,
 				007CE7DE275C0ED40083043E /* Views */,

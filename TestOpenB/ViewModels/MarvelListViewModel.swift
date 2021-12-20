@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class MarvelListViewModel: NSObject {
     
@@ -52,6 +53,13 @@ class MarvelListViewModel: NSObject {
     func getHeroId(index: IndexPath) -> Int {
         let id = characterListArray?[index.row].id ?? 0
         return id
+    }
+    
+    func showNextView(navigator: UINavigationController, id: Int) {
+        let vc = MarvelDetailController()
+        vc.modalPresentationStyle = .fullScreen
+        vc.id = id
+        navigator.pushViewController(vc, animated: true)
     }
     
     
